@@ -34,16 +34,16 @@ and gender = 'M';
 
 -- 30723 rows
 SELECT * from employees
-where last_name like ('E%') or last_name like ('%e')
+where last_name like ('E%') or last_name like ('%e');
 
 -- 899 rows
 SELECT * from employees
-where last_name like ('E%') and last_name like ('%e')
+where last_name like ('E%') and last_name like ('%e');
 
 -- 362 rows
 select * from employees
-where hire_date like ('199%') and birth_date like ('%-12-25')
+where hire_date like ('199%') and birth_date like ('%-12-25');
 
 -- 547 rows
 SELECT * from employees
-where last_name like ('%q%') and not last_name like ('%qu%')
+where last_name like ('%q%') and last_name not like ('%qu%');

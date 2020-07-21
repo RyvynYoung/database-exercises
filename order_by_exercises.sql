@@ -19,21 +19,17 @@ order by last_name, first_name;
 
 -- 5
 SELECT * from employees
-where last_name like ('E%');
-
+where last_name like ('E%') order by emp_no;
 -- 5
 SELECT * from employees
-where last_name like ('E%') order by emp_no;
-
-
--- 6
-SELECT * from employees
-where last_name like ('E%') order by last_name desc;
+where last_name like ('E%') or last_name like ('%e') order by emp_no;
 
 -- 6
 SELECT * from employees
 where last_name like ('E%') order by emp_no DESC;
-
+-- 6
+SELECT * from employees
+where last_name like ('E%') or last_name like ('%e') order by emp_no DESC;
 
 -- 7
 select * from employees

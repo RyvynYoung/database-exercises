@@ -58,7 +58,9 @@ select distinct lower(concat(substr(first_name, 1, 1), substr(last_name, 1, 4), 
 from employees
 order by username; -- total rows 285872
 
--- Bonus: how many duplicate usernames are there? 14152 duplicates
+-- Bonus: how many duplicate usernames are there? 14152 duplicates? by subtracting total rows from distinct rows
+-- Alternative query produces list with only those with occuracnces > 1 and shows 13251 duplicates, But not sure why subtraction wouldn't produce same answer.
+
 -- This will list total number of occurances for each user name, but can't figure out how to just get usernames with an occurance greater than 1 
 select lower(concat(substr(first_name, 1, 1), substr(last_name, 1, 4), "_", substr(birth_date, 6, 2), substr(birth_date, 3, 2))) as username, count(lower(concat(substr(first_name, 1, 1), substr(last_name, 1, 4), "_", substr(birth_date, 6, 2), substr(birth_date, 3, 2)))) as total_with_id
 from employees
@@ -66,4 +68,12 @@ group by lower(concat(substr(first_name, 1, 1), substr(last_name, 1, 4), "_", su
 order by total_with_id desc, username asc;
 
 
--- sscha_0459
+-- alternative, this lists only usernames with a count higher than 1, so the correct number of duplicates is 13251
+SELECT username, username_count 
+FROM (
+        SELECT CONCAT(LOWER(SUBSTR(first_name, 1, 1)), LOWER(SUBSTR(last_name, 1, 4)), "_", SUBSTR(birth_date, 6, 2), SUBSTR(birth_date, 3, 2)) AS username, COUNT(*) as username_count
+        FROM employees
+        GROUP BY username
+        ORDER BY username_count DESC
+) as question
+WHERE username_count > 1;

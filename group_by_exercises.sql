@@ -21,9 +21,20 @@ SELECT distinct(last_name)
 from employees
 where last_name like ('E%') and last_name like ('%e');
 
+select last_name
+from employees
+where last_name like ('E%e')
+group by last_name;
+
 -- 4 Update your previous query to now find unique combinations of first and last name where the last name starts and ends with 'E'. You should get 846 rows.
 SELECT distinct concat(first_name, " ", last_name) as full_name from employees
 where last_name like ('E%') and last_name like ('%e');
+
+select concat(first_name, ' ', last_name) as full_name
+from `employees`
+where last_name like ('E%e')
+group by concat(first_name, ' ', last_name)
+;
 
 -- 5 Find the unique last names with a 'q' but not 'qu'. Your results should be:
 /* Chleq

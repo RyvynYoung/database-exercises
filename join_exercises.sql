@@ -29,10 +29,11 @@ left join users on users.role_id = roles.id
 group by roles.name;
 
 
--- Use the employees database.
+-- 1 Use the employees database.
+
 use `employees`;
 
-/* Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
+/*2. Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
   Department Name    | Department Manager
  --------------------+--------------------
   Customer Service   | Yuchang Weedman
@@ -53,7 +54,7 @@ JOIN departments AS d
   ON d.dept_no = dm.dept_no
   order by d.dept_name;
   
-/* Find the name of all departments currently managed by women.
+/*3 Find the name of all departments currently managed by women.
 Department Name | Manager Name
 ----------------+-----------------
 Development     | Leon DasSarma
@@ -71,7 +72,7 @@ and e.gender = 'F'
 order by d.dept_name;
 
 
-/* Find the current titles of employees currently working in the Customer Service department.
+/*4 Find the current titles of employees currently working in the Customer Service department.
 Title              | Count
 -------------------+------
 Assistant Engineer |    68
@@ -91,7 +92,7 @@ and de.dept_no = 'd009'
 group by t.title
 order by t.title;
 
-/* Find the current salary of all current managers.
+/*5 Find the current salary of all current managers.
 Department Name    | Name              | Salary
 -------------------+-------------------+-------
 Customer Service   | Yuchang Weedman   |  58745
@@ -111,7 +112,7 @@ join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
 order by d.dept_name;
 
 
-/* Find the number of employees in each department.
+/* 6 Find the number of employees in each department.
 +---------+--------------------+---------------+
 | dept_no | dept_name          | num_employees |
 +---------+--------------------+---------------+
@@ -130,41 +131,149 @@ from departments
 join dept_emp as de on departments.dept_no = de.`dept_no` and de.`to_date` > curdate()
 group by de.dept_no;
 
-/* Which department has the highest average salary?
+/*7  Which department has the highest average salary?
 +-----------+----------------+
 | dept_name | average_salary |
 +-----------+----------------+
 | Sales     | 88852.9695     |
 +-----------+----------------+ */
+select departments.dept_name, avg(s.`salary`) as average_salary
+from departments
+join dept_emp as de on departments.dept_no = de.`dept_no` and de.`to_date` > curdate()
+join salaries as s on s.`emp_no` = de.`emp_no` and s.`to_date` > curdate()
+group by departments.dept_name
+order by average_salary desc
+limit 1;
 
-
-/* Who is the highest paid employee in the Marketing department?
+/*8 Who is the highest paid employee in the Marketing department?
 +------------+-----------+
 | first_name | last_name |
 +------------+-----------+
 | Akemi      | Warwick   |
 +------------+-----------+ */
+SELECT e.first_name, e.`last_name`
+FROM employees as e
+JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE() and de.`dept_no` = 'd001'
+join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+order by s.salary desc
+limit 1;
 
-
-/* /* Which current department manager has the highest salary?
+/*9 Which current department manager has the highest salary?
 +------------+-----------+--------+-----------+
 | first_name | last_name | salary | dept_name |
 +------------+-----------+--------+-----------+
 | Vishwani   | Minakawa  | 106491 | Marketing |
 +------------+-----------+--------+-----------+ */
+SELECT e.first_name, e.last_name, s.salary, d.dept_name 
+FROM employees as e
+JOIN dept_manager as dm ON dm.emp_no = e.emp_no and dm.to_date > CURDATE()
+JOIN departments AS d ON d.dept_no = dm.dept_no
+join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+order by s.salary desc
+limit 1;
 
-
-/* Bonus Find the names of all current employees, their department name, and their current manager's name.
+/* 10 Bonus Find the names of all current employees, their department name, and their current manager's name.
 240,124 Rows
 Employee Name | Department Name  |  Manager Name
 --------------|------------------|-----------------
  Huan Lortz   | Customer Service | Yuchang Weedman
 
  ..... */
+select CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name', d.dept_name as 'Department Name', cm.man_name as 'Manager Name'
+FROM employees as e
+JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE() 
+join departments as d on d.dept_no = de.dept_no
+join dept_manager as dm on d.dept_no = dm.dept_no and dm.to_date > curdate() 
+join (
+	select CONCAT(e.first_name, ' ', e.last_name) AS man_name, dm.dept_no
+	from employees as e
+	join dept_manager as dm on dm.emp_no = e.`emp_no` and dm.to_date > curdate()
+		) as cm on cm.dept_no = de.dept_no
+order by d.dept_name;
 
+/* 11. Bonus Find the highest paid employee in each department. */
+SELECT marketing. 
+FROM employees as e
+JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+JOIN departments AS d ON d.dept_no = de.dept_no
+join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd001'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as marketing on d.`dept_name` = marketing.dept_name
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd002'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as finance on d.`dept_name` = finance.dept_name;
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd003'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as HR on d.`dept_name` = HR.dept_name
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd004'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as production on d.`dept_name` = production.dept_name
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd005'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as development on d.`dept_name` = development.dept_name
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd006'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as quality on d.`dept_name` = quality.dept_name
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd007'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as sales on d.`dept_name` = sales.dept_name
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd008'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as research on d.`dept_name` = research.dept_name
+join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd009'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1) as cust_serv on d.`dept_name` = cust_serv.dept_name
+order by s.salary desc;
 
-/* Bonus Find the highest paid employee in each department. */
+SELECT e.first_name, e.last_name, s.salary, d.dept_name
+FROM employees as e
+JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd001'
+join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+order by s.salary desc
+limit 1;
 
-
-
-
+SELECT e.first_name, e.last_name, s.salary, d.dept_name
+		FROM employees as e
+		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
+		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd009'
+		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
+		order by s.salary desc
+		limit 1;

@@ -192,88 +192,16 @@ join (
 order by d.dept_name;
 
 /* 11. Bonus Find the highest paid employee in each department. */
-SELECT marketing. 
-FROM employees as e
-JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-JOIN departments AS d ON d.dept_no = de.dept_no
-join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd001'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as marketing on d.`dept_name` = marketing.dept_name
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd002'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as finance on d.`dept_name` = finance.dept_name;
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd003'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as HR on d.`dept_name` = HR.dept_name
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd004'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as production on d.`dept_name` = production.dept_name
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd005'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as development on d.`dept_name` = development.dept_name
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd006'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as quality on d.`dept_name` = quality.dept_name
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd007'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as sales on d.`dept_name` = sales.dept_name
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd008'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as research on d.`dept_name` = research.dept_name
-join (SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd009'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1) as cust_serv on d.`dept_name` = cust_serv.dept_name
-order by s.salary desc;
 
-SELECT e.first_name, e.last_name, s.salary, d.dept_name
-FROM employees as e
-JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd001'
-join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-order by s.salary desc
-limit 1;
-
-SELECT e.first_name, e.last_name, s.salary, d.dept_name
-		FROM employees as e
-		JOIN dept_emp as de ON de.emp_no = e.emp_no and de.to_date > CURDATE()
-		JOIN departments AS d ON d.dept_no = de.dept_no and d.dept_no = 'd009'
-		join salaries as s on e.emp_no = s.emp_no and s.to_date > CURDATE()
-		order by s.salary desc
-		limit 1;
+select max_by_dept.dno, max_by_dept.dname, employees.first_name, employees.last_name, max_by_dept.maxsal, salaries.to_date   
+from employees
+join dept_emp on dept_emp.emp_no = employees.emp_no
+join salaries on salaries.emp_no = dept_emp.emp_no
+join (select dept_emp.dept_no as dno, departments.dept_name as dname, max(salary) as maxsal 
+ 	from salaries
+ 	join dept_emp on salaries.emp_no = dept_emp.emp_no
+ 	join departments on departments.dept_no = dept_emp.dept_no
+ 	join employees on employees.emp_no = salaries.emp_no
+	 group by dept_emp.dept_no) as max_by_dept on max_by_dept.dno = dept_emp.dept_no
+where salaries.salary = max_by_dept.maxsal
+order by max_by_dept.dno;

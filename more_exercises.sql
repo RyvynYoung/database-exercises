@@ -32,7 +32,7 @@ join(select de.dept_no as dno, avg(s.salary) as avg_sal
 	group by de.dept_no) as avg_dept_salary on dm.dept_no = avg_dept_salary.dno;
 
     -- Is there any department where the department manager gets paid less than the average salary?
-            --yes, 2 departments = Production and Customer Service
+            -- yes, 2 departments = Production and Customer Service
 
 
 -- World Database
@@ -224,9 +224,6 @@ group by Region
 order by avg(LifeExpectancy);
 
 
-
-
-
 -- Bonus
 -- Find all the countries whose local name is different from the official name
 select LocalName, Name
@@ -273,50 +270,97 @@ where city.Name = 'Austin';
 -- Sakila Database
 use sakila; 
 
---Display the first and last names in all lowercase of all the actors.
+-- Display the first and last names in all lowercase of all the actors.
 select lower(first_name), lower(last_name)
 from actor;
 
---You need to find the ID number, first name, and last name of an actor, of whom you know only the first name, "Joe."
---What is one query would you could use to obtain this information?
+-- You need to find the ID number, first name, and last name of an actor, of whom you know only the first name, "Joe."
+-- What is one query would you could use to obtain this information?
 select actor_id, first_name, last_name
 from actor
 where first_name like 'Joe';
 
---Find all actors whose last name contain the letters "gen":
+-- Find all actors whose last name contain the letters "gen":
 select first_name, last_name
 from actor
 where last_name like '%gen%';
 
---Find all actors whose last names contain the letters "li". This time, order the rows by last name and first name, in that order.
+-- Find all actors whose last names contain the letters "li". This time, order the rows by last name and first name, in that order.
 select last_name, first_name
 from actor
 where last_name like '%li%'
 order by last_name, first_name;
 
---Using IN, display the country_id and country columns for the following countries: Afghanistan, Bangladesh, and China:
+-- Using IN, display the country_id and country columns for the following countries: Afghanistan, Bangladesh, and China:
 select country_id, country 
 from country
 where country in ('Afghanistan', 'Bangladesh', 'China');
 
---List the last names of all the actors, as well as how many actors have that last name.
+-- List the last names of all the actors, as well as how many actors have that last name.
 select last_name, count(last_name) 
-from `actor`
+from `actor` 
+group by last_name;
+
+-- List last names of actors and the number of actors who have that last name, but only for names that are shared by at least two actors
+select last_name, count(last_name) count
+from actor 
 group by last_name
+having count > 1
+order by count desc;
 
---List last names of actors and the number of actors who have that last name, but only for names that are shared by at least two actors
+-- You cannot locate the schema of the address table. Which query would you use to re-create it?
+		-- this is the query to find the query that created the table address
+	show create table address;
 
---You cannot locate the schema of the address table. Which query would you use to re-create it?
+	-- this is a copy of the query used to create the address table
+	CREATE TABLE `address` (
+  `address_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `address` varchar(50) NOT NULL,
+  `address2` varchar(50) DEFAULT NULL,
+  `district` varchar(20) NOT NULL,
+  `city_id` smallint(5) unsigned NOT NULL,
+  `postal_code` varchar(10) DEFAULT NULL,
+  `phone` varchar(20) NOT NULL,
+  `location` geometry NOT NULL,
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`address_id`),
+  KEY `idx_fk_city_id` (`city_id`),
+  SPATIAL KEY `idx_location` (`location`),
+  CONSTRAINT `fk_address_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`city_id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=606 DEFAULT CHARSET=utf8;
 
---Use JOIN to display the first and last names, as well as the address, of each staff member.
+-- Use JOIN to display the first and last names, as well as the address, of each staff member.
+select first_name, last_name, address 
+from staff
+join address using(address_id);
 
---Use JOIN to display the total amount rung up by each staff member in August of 2005.
+-- Use JOIN to display the total amount rung up by each staff member in August of 2005.
+select concat(first_name, " ", last_name) staff_member, sum(amount) amount_Aug_2005  
+from payment
+join staff using(staff_id)
+where payment_date like '2005-08%'
+group by staff_member;
 
---List each film and the number of actors who are listed for that film.
+-- List each film and the number of actors who are listed for that film.
+select title, count(actor_id) num_actors
+from film
+join film_actor using(film_id)
+group by title;
 
 -- How many copies of the film Hunchback Impossible exist in the inventory system?
+select title, count(inventory_id)
+from film
+join inventory using(film_id)
+where title = 'Hunchback Impossible'
+group by title;
 
 -- The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters K and Q have also soared in popularity. Use subqueries to display the titles of movies starting with the letters K and Q whose language is English.
+
+-- solved without subqueries, need to change!
+select title
+from film
+join language using(language_id)
+where title like 'K%' or title like 'Q%' and name = 'English';
 
 -- Use subqueries to display all actors who appear in the film Alone Trip.
 
@@ -329,7 +373,7 @@ group by last_name
 -- Write a query to display for each store its store ID, city, and country.
 
 -- List the top five genres in gross revenue in descending order.
---(Hint: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
+-- (Hint: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
 
 
 
